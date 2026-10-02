@@ -1,4 +1,4 @@
-// Starting data
+// Starting Data
 let notes = [
   { id: 1, text: "Buy milk and bread", category: "personal" },
   { id: 2, text: "Finish the Day 3 assignment", category: "study" },
@@ -7,75 +7,60 @@ let notes = [
   { id: 5, text: "Call mum", category: "personal" },
 ];
 
-/**
- * 1. searchNotes(word)
- * Returns an array of notes whose text contains word (case-insensitive).
- */
+// 1. searchNotes(word)
 function searchNotes(word) {
-  if (!word) return [];
   const query = word.toLowerCase();
-  return notes.filter(note => note.text.toLowerCase().includes(query));
+  return notes.filter((note) => note.text.toLowerCase().includes(query));
 }
 
-/**
- * 2. longestNote()
- * Returns the note object with the most characters, or null if notes is empty.
- */
+// 2. longestNote()
 function longestNote() {
   if (notes.length === 0) return null;
-  return notes.reduce((longest, current) => 
-    current.text.length > longest.text.length ? current : longest
-  , notes[0]);
+  return notes.reduce((longest, current) => {
+    return current.text.length > longest.text.length ? current : longest;
+  }, notes[0]);
 }
 
-/**
- * 3. countByCategory()
- * Returns an object counting notes per category.
- */
+// 3. countByCategory()
 function countByCategory() {
-  return notes.reduce((counts, note) => {
-    counts[note.category] = (counts[note.category] || 0) + 1;
-    return counts;
+  return notes.reduce((acc, note) => {
+    acc[note.category] = (acc[note.category] || 0) + 1;
+    return acc;
   }, {});
 }
 
-/**
- * 4. getSummary()
- * Returns a sentence such as "5 notes: 2 personal, 1 work, 2 study."
- */
+// 4. getSummary()
 function getSummary() {
+  const total = notes.length;
+  const word = total === 1 ? "note" : "notes"; // Fix: dynamically select singular or plural
   const counts = countByCategory();
-  const categoryParts = Object.entries(counts)
-    .map(([cat, count]) => `${count} ${cat}`);
-  
-  return `${notes.length} notes: ${categoryParts.join(", ")}.`;
+
+  const details = Object.entries(counts)
+    .map(([cat, count]) => `${count} ${cat}`)
+    .join(", ");
+
+  return `${total} ${word}: ${details}.`;
 }
 
-/**
- * 5. isDuplicate(text)
- * Returns true if a note with the same text already exists (ignoring case & extra spaces).
- */
+// 5. isDuplicate(text)
 function isDuplicate(text) {
-  if (!text) return false;
   const normalizedNewText = text.trim().toLowerCase();
-  return notes.some(note => note.text.trim().toLowerCase() === normalizedNewText);
+  return notes.some(
+    (note) => note.text.trim().toLowerCase() === normalizedNewText
+  );
 }
 
-/**
- * 6. addNote(text, category)
- * Adds a note only if valid length (1-200), not a duplicate, and valid category.
- */
+// 6. addNote(text, category)
 function addNote(text, category) {
-  const validCategories = ["personal", "work", "study"];
-  const trimmedText = text ? text.trim() : "";
+  const allowedCategories = ["personal", "work", "study"];
 
-  if (trimmedText.length < 1 || trimmedText.length > 200) {
-    console.log("Failed to add note: Text must be between 1 and 200 characters.");
+  if (!text || text.length < 1 || text.length > 200) {
+    console.log("Failed to add note: Text length must be between 1 and 200 characters.");
     return false;
   }
 
-  if (!validCategories.includes(category)) {
-    console.log(`Failed to add note: Invalid category "${category}". Must be personal, work, or study.`);
+  if (!allowedCategories.includes(category)) {
+    console.log(`Failed to add note: Invalid category "${category}".`);
     return false;
   }
 
@@ -84,46 +69,56 @@ function addNote(text, category) {
     return false;
   }
 
-  const newId = notes.length > 0 ? Math.max(...notes.map(n => n.id)) + 1 : 1;
-  notes.push({ id: newId, text: trimmedText, category });
-  console.log("Note successfully added!");
+  const newId = notes.length > 0 ? Math.max(...notes.map((n) => n.id)) + 1 : 1;
+  notes.push({ id: newId, text: text, category: category });
   return true;
 }
 
 // ==========================================
-// CONSOLE LOG TESTS
+// TEST CASES (2 per function with expected output comments)
 // ==========================================
 
-console.log("--- 1. searchNotes ---");
-console.log('searchNotes("day"):', searchNotes("day"));
+// 1. searchNotes Tests
+console.log(searchNotes("day")); 
+// Expected: [{ id: 2, text: "Finish the Day 3 assignment", category: "study" }]
+console.log(searchNotes("python")); 
+// Expected: [] (Edge case: word does not exist)
 
-console.log("\n--- 2. longestNote ---");
-console.log("longestNote():", longestNote());
+// 2. longestNote Tests
+console.log(longestNote()); 
+// Expected: { id: 3, text: "Email the project report to Grace", category: "work" }
+const tempNotes = notes;
+notes = [];
+console.log(longestNote()); 
+// Expected: null (Edge case: empty array)
+notes = tempNotes; // Restore array
 
-console.log("\n--- 3. countByCategory ---");
-console.log("countByCategory():", countByCategory());
+// 3. countByCategory Tests
+console.log(countByCategory()); 
+// Expected: { personal: 2, study: 2, work: 1 }
+const backupNotes = notes;
+notes = [{ id: 1, text: "Solo task", category: "work" }];
+console.log(countByCategory()); 
+// Expected: { work: 1 } (Edge case: single category)
+notes = backupNotes; // Restore array
 
-console.log("\n--- 4. getSummary ---");
-console.log("getSummary():", getSummary());
+// 4. getSummary Tests
+console.log(getSummary()); 
+// Expected: "5 notes: 2 personal, 2 study, 1 work."
+const singleNoteBackup = notes;
+notes = [{ id: 1, text: "Only one note", category: "personal" }];
+console.log(getSummary()); 
+// Expected: "1 note: 1 personal." (Edge case: exactly 1 note singular check)
+notes = singleNoteBackup; // Restore array
 
-console.log("\n--- 5. isDuplicate ---");
-console.log('isDuplicate("  buy milk AND bread  "):', isDuplicate("  buy milk AND bread  ")); // true
-console.log('isDuplicate("Read a book"):', isDuplicate("Read a book")); // false
+// 5. isDuplicate Tests
+console.log(isDuplicate("  buy milk AND bread  ")); 
+// Expected: true (Case and space insensitive match)
+console.log(isDuplicate("Read a book")); 
+// Expected: false (Edge case: new unique note)
 
-console.log("\n--- 6. addNote ---");
-console.log('addNote("Buy milk and bread", "personal"):'); // Duplicate test
-addNote("Buy milk and bread", "personal");
-
-console.log('addNote("Learn CSS Grid", "invalid_cat"):'); // Category test
-addNote("Learn CSS Grid", "invalid_cat");
-
-console.log('addNote("", "study"):'); // Length test
-addNote("", "study");
-
-console.log('addNote("Prepare presentation slides", "work"):'); // Valid add test
-console.log("Result:", addNote("Prepare presentation slides", "work"));
-
-console.log("\n--- Updated Summary & Notes Count ---");
-console.log("getSummary():", getSummary());
-console.log("Updated Notes Array:", notes);
-
+// 6. addNote Tests
+console.log(addNote("Prepare presentation slides", "work")); 
+// Expected log: Note added; returns true
+console.log(addNote("Buy milk and bread", "personal")); 
+// Expected log: "Failed to add note: Duplicate note text already exists."; returns false (Edge case: duplicate check)
