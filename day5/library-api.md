@@ -1,41 +1,42 @@
-# Library REST API Design
-
-Design specification for the library's `books` resource.
-
-## Base URL
-`https://api.librarysystem.com/v1`
-
----
-
+# Library API - Books Resource
+ 
+Base URL: https://api.citylibrary.org/v1
+All requests and responses use JSON.
+ 
 ## Endpoints
+ 
+### List all books
+- GET /books
+- Returns an array of books.
+- Success: 200 OK
+ 
+### List books by an author
+- GET /books?author=Chinua%20Achebe
+- Returns an array of books filtered by the author query parameter.
+- Success: 200 OK
 
-### 1. List All Books
-* **Method:** `GET`
-* **Path:** `/books`
-* **Description:** Retrieves a list of all available books in the library.
-* **Success Status Code:** `200 OK`
+### Get one book
+- GET /books/{id}
+- Example: GET /books/15
+- Returns a single book object by its ID.
+- Success: 200 OK
+ 
+### Create a book
+- POST /books
+- Body: `{ "title": "Things Fall Apart", "author": "Chinua Achebe", "year": 1958, "copies": 3 }`
+- Success: 201 Created (returns the new book with its id)
+ 
+### Update a book
+- PATCH /books/{id}
+- Body (only the fields to change): `{ "copies": 5 }`
+- Success: 200 OK
 
-### 2. List Books by Author (Query Parameter)
-* **Method:** `GET`
-* **Path:** `/books?author=author_name`
-* **Description:** Retrieves a filtered list of books written by a specific author.
-* **Success Status Code:** `200 OK`
+### Delete a book
+- DELETE /books/{id}
+- Example: DELETE /books/15
+- Deletes a specific book record.
+- Success: 204 No Content
 
-### 3. Get a Single Book
-* **Method:** `GET`
-* **Path:** `/books/{id}`
-* **Description:** Retrieves details of a specific book by its unique ID.
-* **Success Status Code:** `200 OK`
-
-### 4. Create a New Book
-* **Method:** `POST`
-* **Path:** `/books`
-* **Description:** Adds a new book record to the library database.
-* **Example Request Body:**
-  ```json
-  {
-    "title": "Clean Code",
-    "author": "Robert C. Martin",
-    "publishedYear": 2008,
-    "isbn": "978-0132350884"
-  }
+## Error Codes
+- **400 Bad Request**: Happens when the client sends invalid JSON or missing required fields in a POST request.
+- **404 Not Found**: Happens when the requested book ID does not exist in the database (e.g., trying to GET, PATCH, or DELETE a non-existent ID).
